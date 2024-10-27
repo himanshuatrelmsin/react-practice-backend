@@ -3,18 +3,16 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const apiUserRoutes = require('./api_user');
 const apiProductRoutes = require('./api_product');
-const countries = require('./json/Countries');
 const connectDB = require('./mongodb');
 const app = express();
 const PORT = 3001;
 connectDB();
-// Middleware
+
 app.use(cors());
 app.use(bodyParser.json());
 app.get('/', (req, res) => {
     res.send('Welcome to the Express server!');
 });
-app.get('/countries', (req, res) => { res.send(countries); });
 
 // Use external route files
 app.use('/api_user', apiUserRoutes);
