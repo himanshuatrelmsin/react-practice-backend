@@ -1,18 +1,19 @@
 const express = require('express');
 const router = express.Router();
-
 const User = require('./models/user');
+const { v4: uuidv4 } = require('uuid');
 
 // Registration route
 router.post('/userRegistration', async (req, res) => {
     const { name, number, email, dob, username, password, cpassword } = req.body;
     const role = "subscriber";
-    if (!name || !number || !email || !dob || !role || !username || !password || !cpassword) {
+    const userId = uuidv4();
+    if (!userId, !name || !number || !email || !dob || !role || !username || !password || !cpassword) {
         return res.status(400).json({ message: 'All fields are required.' });
     }
 
     try {
-        const newUser = new User({ name, number, email, dob, username, role, password, cpassword });
+        const newUser = new User({ userId, name, number, email, dob, username, role, password, cpassword });
         await newUser.save();
         return res.status(200).json({ message: 'User registered successfully' });
     } catch (error) {
@@ -24,13 +25,13 @@ router.post('/userRegistration', async (req, res) => {
 // Registration route
 router.post('/adminRegistration', async (req, res) => {
     const { name, number, email, dob, role, username, password, cpassword } = req.body;
-  
-    if (!name || !number || !email || !dob || !role || !username || !password || !cpassword) {
+    const userId = uuidv4();
+    if (!userId, !name || !number || !email || !dob || !role || !username || !password || !cpassword) {
         return res.status(400).json({ message: 'All fields are required.' });
     }
 
     try {
-        const newUser = new User({ name, number, email, dob, role, username, role, password, cpassword });
+        const newUser = new User({userId, name, number, email, dob, role, username, role, password, cpassword });
         await newUser.save();
         return res.status(200).json({ message: `${role} registered successfully` });
     } catch (error) {

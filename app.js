@@ -3,6 +3,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const apiUserRoutes = require('./api_user');
 const apiProductRoutes = require('./api_product');
+const apiLocationRoutes = require('./api_location');
 const connectDB = require('./mongodb');
 const app = express();
 const PORT = 3001;
@@ -17,6 +18,7 @@ app.get('/', (req, res) => {
 // Use external route files
 app.use('/api_user', apiUserRoutes);
 app.use('/api_product', apiProductRoutes);
+app.use('/api_location', apiLocationRoutes);
 // Start the server
 app.listen(PORT, (error) => {
     if (!error) {
