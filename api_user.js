@@ -1,18 +1,23 @@
 const express = require('express');
 const router = express.Router();
-
+const bcrypt = require('bcrypt');
+const nodemailer = require('nodemailer');
+const jwt = require('jsonwebtoken');
 const User = require('./models/user');
 
 // Registration route
 router.post('/userRegistration', async (req, res) => {
-    const { name, number, email, dob, username, password, cpassword } = req.body;
+    const { name, number, email, dob, username, password } = req.body;
     const role = "subscriber";
-    if (!name || !number || !email || !dob || !role || !username || !password || !cpassword) {
+    if (!name || !number || !email || !dob || !role || !username || !password) {
         return res.status(400).json({ message: 'All fields are required.' });
     }
 
     try {
-        const newUser = new User({ name, number, email, dob, username, role, password, cpassword });
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+        const newUser = new User({ name, number, email, dob, username, role, password : hashedPassword });
         await newUser.save();
         return res.status(200).json({ message: 'User registered successfully' });
     } catch (error) {
@@ -23,14 +28,17 @@ router.post('/userRegistration', async (req, res) => {
 
 // Registration route
 router.post('/adminRegistration', async (req, res) => {
-    const { name, number, email, dob, role, username, password, cpassword } = req.body;
+    const { name, number, email, dob, role, username, password } = req.body;
   
-    if (!name || !number || !email || !dob || !role || !username || !password || !cpassword) {
+    if (!name || !number || !email || !dob || !role || !username || !password ) {
         return res.status(400).json({ message: 'All fields are required.' });
     }
 
     try {
-        const newUser = new User({ name, number, email, dob, role, username, role, password, cpassword });
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+        const newUser = new User({ name, number, email, dob, role, username, role, password : hashedPassword });
         await newUser.save();
         return res.status(200).json({ message: `${role} registered successfully` });
     } catch (error) {
