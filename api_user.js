@@ -83,4 +83,75 @@ router.post('/userLogin', async (req, res) => {
     
 });
 
+
+router.post('/changePassword', async (req, res) => {
+    const { email, currentPassword, newPassword } = req.body;
+
+    try {
+        const user = await User.findOne({ email: email });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) {
+            return res.status(401).json({ message: 'Current password is incorrect' });
+        }
+        const saltRounds = 10;
+        const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
+
+        user.password = hashedNewPassword;
+        await user.save();
+
+        return res.status(200).json({ message: 'Password changed successfully' });
+    } catch (error) {
+        console.error('Error updating password:', error);
+        return res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+router.post('/requestPassword', async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const resetToken = jwt.sign({ email: user.email }, 'your-secret-key', { expiresIn: '1h' });
+        const resetUrl = `http://localhost:3001/reset-password?token=${resetToken}`;
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: 'himanshuatre.lmsin@gmail.com',
+                pass: 'slrtzujguwvqklvl',
+            },
+        });
+
+        const mailOptions = {
+            from: 'himanshuatre.lmsin@gmail.com',
+            to: user.email,
+            subject: 'Password Reset Request',
+            text: `To reset your password, please click the following link: ${resetUrl}`,
+        };
+
+        await transporter.sendMail(mailOptions);
+
+        return res.status(200).json({ message: 'Password reset link sent to your email' });
+    } catch (error) {
+        console.error('Error sending email:', error);
+        return res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+router.get('/allUsers', async (req, res) => {
+    try {
+        const users = await User.find({ role: 'subscriber' }); // Retrieves all users
+        return res.status(200).json(users);
+    } catch (error) {
+        console.error('Error retrieving users:', error);
+        return res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
 module.exports = router;
