@@ -73,7 +73,7 @@ router.post('/userLogin', async (req, res) => {
         }
 
         if (password === user.password) {
-            return res.status(200).json({ message: 'Login successful', user: { username: user.username, email: user.email } });
+            return res.status(200).json({ message: 'Login successful', user: user });
         } else {
             return res.status(401).json({ message: 'Username or password is incorrect' });
         }
@@ -82,6 +82,32 @@ router.post('/userLogin', async (req, res) => {
         return res.status(500).json({ message: 'Internal Server Error' });
     }
     
+});
+router.put('/updateProfile', async (req, res) => {
+    try {
+        const { userId, password, cpassword, country, state, city, address } = req.body;
+
+        // Ensure required fields are provided
+        if (!userId || !password || !cpassword || !country || !state || !city || !address) {
+            return res.status(400).json({ message: 'All fields are required.' });
+        }
+
+        // Update user in the database
+        const updatedUser = await User.findOneAndUpdate(
+            { userId }, // Find by userId
+            { password, cpassword, country, state, city, address }, // Fields to update
+            { new: true } // Return the updated document
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+
+        return res.status(200).json({ message: 'Profile updated successfully', updatedUser });
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        return res.status(500).json({ message: 'Internal Server Error' });
+    }
 });
 
 module.exports = router;

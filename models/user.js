@@ -11,6 +11,10 @@ const userSchema = new mongoose.Schema({
     role: { type: String, required: true },
     password: { type: String, required: true },
     cpassword: { type: String, required: true },
+    country: { type: String },
+    state: { type: String },
+    city: { type: String },
+    address: { type: String },
 },
 {
     timestamps:true,
