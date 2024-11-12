@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const apiUserRoutes = require('./api_user');
 const apiProductRoutes = require('./api_product');
 const apiLocationRoutes = require('./api_location');
+const apiUploadRoutes = require('./apis/api_upload');
 const connectDB = require('./mongodb');
 const app = express();
 const PORT = 3001;
@@ -19,6 +20,15 @@ app.get('/', (req, res) => {
 app.use('/api_user', apiUserRoutes);
 app.use('/api_product', apiProductRoutes);
 app.use('/api_location', apiLocationRoutes);
+app.use('/apis/api_upload', apiUploadRoutes);
+
+const uploadsProfile = path.join(__dirname, 'uploads/profile');
+if (!fs.existsSync(uploadsProfile)) {
+  fs.mkdirSync(uploadsProfile, { recursive: true }); 
+}
+app.use('/uploads/profile', express.static(path.join(__dirname, 'uploads/profile')));
+
+
 // Start the server
 app.listen(PORT, (error) => {
     if (!error) {
